@@ -5,4 +5,5 @@ services:
     environment:
       - QYWX_ROBOT=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=5d6ffd0f-981e-42e8-a20d-affc5818818b
     container_name: juejin-checkin
-    command: node index.js
+    volumes:
+      - ./config:/usr/src/app/config
