@@ -12,7 +12,7 @@ node index.js  # 运行
 
 ## docker运行
 ```bash
-docker run -d --name juejin-checkin -e QYWX_ROBOT='你的企业微信群机器人webhook地址' -e CRON='0 0 7 * * *' lmyself/juejin-checkIn:latest
+docker run -d --name juejin-checkin -e QYWX_ROBOT='你的企业微信群机器人webhook地址' -e CRON='0 0 7 * * *' lmyself/juejin-checkin:latest
 ```
 
 ## docker-compose运行
