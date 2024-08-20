@@ -17,7 +17,6 @@ let point = "-1";
 
 const QYWX_ROBOT = process.env.QYWX_ROBOT;
 const CRON = process.env.CRON;
-const isDocker = process.env.IS_DOCKER || false; // 通过环境变量检测是否在 Docker 中运行
 
 if (!fs.existsSync(DIR_PATH)) {
     fs.mkdirSync(DIR_PATH);
@@ -95,24 +94,12 @@ const browseRandomArticles = async (page) => {
 const main = async () => {
     console.log("开始签到");
     try {
-        // const browser = await puppeteer.launch({
-        //     args: ["--no-sandbox"],
-        //     executablePath: fs.existsSync("/usr/bin/chromium")
-        //         ? "/usr/bin/chromium"
-        //         : undefined,
-        // });
         const browser = await puppeteer.launch({
-            args: [
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                ...(isDocker ? [
-                    "--disable-dev-shm-usage",
-                    "--disable-gpu",
-                ] : [])
-            ],
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined, // 如果存在环境变量则使用，否则使用默认路径
-            headless: true,  // 强制无头模式
-            timeout: 60000,  // 设置较长的超时时间
+            args: ["--no-sandbox"],
+            executablePath: fs.existsSync("/usr/bin/chromium")
+                ? "/usr/bin/chromium"
+                : undefined,
+            timeout: 60000,
         });
 
         const page = await browser.newPage();
