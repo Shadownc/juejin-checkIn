@@ -4,6 +4,16 @@ FROM node:18-alpine
 # 设置工作目录
 WORKDIR /app
 
+# 安装 Chromium 及相关依赖
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    libxshmfence
+
 # 安装 pnpm
 RUN npm install -g pnpm
 
@@ -17,11 +27,9 @@ RUN pnpm install --frozen-lockfile
 # 复制项目文件到容器中
 COPY . .
 
-# 暴露应用端口（如果有必要）
-# EXPOSE 8080
-
 # 设置环境变量
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # 启动应用
 CMD ["node", "index.js"]  # 根据你的入口文件名称调整
