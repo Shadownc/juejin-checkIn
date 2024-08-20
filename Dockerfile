@@ -1,40 +1,32 @@
-# 使用 Node.js 18 作为基础镜像
-FROM node:18-slim AS base
+# Use Node.js 18 as the base image
+FROM node:18-slim
 
-# 设置工作目录
+# Set the working directory
 WORKDIR /usr/src/app
 
-# 安装项目依赖到一个临时目录中以利用缓存加速构建
-FROM base AS install
-RUN mkdir -p /temp/dev
-COPY package.json pnpm-lock.yaml /temp/dev/
-RUN cd /temp/dev && npm install -g pnpm && pnpm install --frozen-lockfile
+# Install Chromium and its dependencies
+RUN apt-get update && apt-get install -y \
+    chromium \
+    fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
-# 复制生产依赖和源代码到最终镜像中
-FROM base AS release
-COPY --from=install /temp/dev/node_modules ./node_modules
+# Install pnpm
+RUN npm install -g pnpm
 
-# 安装 Chromium 及相关依赖
-RUN apt-get update && \
-    apt-get install -y \
-    libasound2 \
-    libgtk-3-0 \
-    libnss3 \
-    libdrm2 \
-    libgbm1 \
-    chromium && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Copy package.json and pnpm-lock.yaml
+COPY package.json pnpm-lock.yaml ./
 
-# 检查 Chromium 是否已正确安装
-RUN which chromium
+# Install dependencies
+RUN pnpm install --frozen-lockfile
 
-# 复制源代码到工作目录
+# Copy the rest of the application code
 COPY . .
 
-# 设置环境变量
-ENV NODE_ENV=production \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+# Set environment variables
+ENV NODE_ENV=production
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# 使用 Node.js 作为入口点，运行 index.js
+# Use Node.js as the entrypoint to run index.js
 ENTRYPOINT ["node", "index.js"]

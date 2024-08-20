@@ -106,7 +106,7 @@ const main = async () => {
             executablePath: fs.existsSync("/usr/bin/chromium")
                 ? "/usr/bin/chromium"
                 : undefined,
-            timeout: 170000,
+            timeout: 70000,
         });
 
         const page = await browser.newPage();
