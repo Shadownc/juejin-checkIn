@@ -95,11 +95,18 @@ const main = async () => {
     console.log("开始签到");
     try {
         const browser = await puppeteer.launch({
-            args: ["--no-sandbox"],
+            args: [
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-gpu",
+                "--no-zygote",
+                "--single-process"
+            ],
             executablePath: fs.existsSync("/usr/bin/chromium")
                 ? "/usr/bin/chromium"
                 : undefined,
-            timeout: 60000,
+            timeout: 170000,
         });
 
         const page = await browser.newPage();

@@ -26,6 +26,9 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# 检查 Chromium 是否已正确安装
+RUN which chromium
+
 # 复制源代码到工作目录
 COPY . .
 
