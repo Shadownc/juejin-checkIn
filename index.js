@@ -107,6 +107,8 @@ const main = async () => {
                 ? "/usr/bin/chromium"
                 : undefined,
             timeout: 70000,
+            protocolTimeout: 60000,  // 增加这个设置，单位为毫秒
+            dumpio: true, // 打开 dumpio 以获取 Chromium 调试信息
         });
 
         const page = await browser.newPage();
