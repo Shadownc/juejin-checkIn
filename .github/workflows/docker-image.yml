@@ -41,11 +41,11 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/juejin-checkIn:latest
+        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/juejin-checkin:latest
 
     - name: Build and push to GitHub Packages
       uses: docker/build-push-action@v4
       with:
         context: .
         push: true
-        tags: ghcr.io/${{ env.username }}/juejin-checkIn:latest
+        tags: ghcr.io/${{ env.username }}/juejin-checkin:latest
