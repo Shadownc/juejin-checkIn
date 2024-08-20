@@ -95,11 +95,14 @@ const main = async () => {
     console.log("开始签到");
     try {
         const browser = await puppeteer.launch({
+            headless: true,  // 启用无头模式
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
                 "--disable-dev-shm-usage",
                 "--disable-gpu",
+                "--disable-software-rasterizer",  // 禁用软件光栅化
+                "--use-gl=swiftshader",  // 使用 SwiftShader 进行软件渲染
                 "--no-zygote",
                 "--single-process"
             ],
