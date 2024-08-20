@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  app:
+    image: lmyself/juejin-checkIn:latest
+    environment:
+      - QYWX_ROBOT=
+      - CRON=0 0 7 * * *
