@@ -5,3 +5,4 @@ services:
     environment:
       - QYWX_ROBOT=
       - CRON=0 0 7 * * *
+    container_name: juejin-checkin
