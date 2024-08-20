@@ -4,8 +4,6 @@ services:
     image: lmyself/juejin-checkin:latest
     environment:
       - QYWX_ROBOT=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=<KEY>
-      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
     container_name: juejin-checkin
     volumes:
       - ./config:/usr/src/app/config
