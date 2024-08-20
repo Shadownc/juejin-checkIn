@@ -95,26 +95,54 @@ const main = async () => {
     console.log("开始签到");
     try {
         const browser = await puppeteer.launch({
+            headless: true,
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
                 "--disable-dev-shm-usage",
                 "--disable-gpu",
-                "--disable-software-rasterizer",
-                "--use-gl=swiftshader",
-                "--no-zygote",
+                "--use-gl=swiftshader",   // 强制使用 SwiftShader
                 "--single-process",
-                "--ignore-gpu-blocklist",
+                "--disable-software-rasterizer",
+                "--disable-gl-drawing-for-tests",  // 禁用GL绘图
+                "--disable-background-networking",
+                "--disable-background-timer-throttling",
+                "--disable-breakpad",
+                "--disable-client-side-phishing-detection",
+                "--disable-component-update",
+                "--disable-default-apps",
+                "--disable-domain-reliability",
+                "--disable-extensions",
+                "--disable-features=AudioServiceOutOfProcess",
+                "--disable-hang-monitor",
+                "--disable-ipc-flooding-protection",
+                "--disable-popup-blocking",
+                "--disable-prompt-on-repost",
+                "--disable-renderer-backgrounding",
+                "--disable-sync",
+                "--disable-translate",
+                "--metrics-recording-only",
+                "--no-first-run",
+                "--safebrowsing-disable-auto-update",
+                "--enable-automation",
+                "--password-store=basic",
+                "--use-mock-keychain",
+                "--mute-audio",
+                "--disable-backgrounding-occluded-windows",
                 "--disable-background-timer-throttling",
                 "--disable-renderer-backgrounding",
-                "--disable-backgrounding-occluded-windows",
+                "--disable-hang-monitor",
+                "--disable-2d-canvas-clip-aa",
+                "--disable-accelerated-2d-canvas",
+                "--disable-accelerated-jpeg-decoding",
+                "--disable-accelerated-mjpeg-decode",
+                "--disable-accelerated-video-decode",
             ],
             executablePath: fs.existsSync("/usr/bin/chromium")
                 ? "/usr/bin/chromium"
                 : undefined,
             timeout: 70000,
             protocolTimeout: 60000,  // 增加这个设置，单位为毫秒
-            dumpio: true, // 打开 dumpio 以获取 Chromium 调试信息
         });
 
         const page = await browser.newPage();

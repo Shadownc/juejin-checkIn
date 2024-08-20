@@ -23,13 +23,5 @@ RUN pnpm install --frozen-lockfile
 # Copy the rest of the application code
 COPY . .
 
-# Add a non-root user to run the application
-RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
-    && mkdir -p /home/pptruser/Downloads \
-    && chown -R pptruser:pptruser /usr/src/app
-
-# Switch to the non-root user
-USER pptruser
-
 # Set the command to run the application
 CMD ["node", "index.js"]
