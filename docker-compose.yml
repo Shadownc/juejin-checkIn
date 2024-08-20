@@ -3,6 +3,6 @@ services:
   app:
     image: lmyself/juejin-checkin:latest
     environment:
-      - QYWX_ROBOT=
-      - CRON=0 0 7 * * *
+      - QYWX_ROBOT=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=5d6ffd0f-981e-42e8-a20d-affc5818818b
     container_name: juejin-checkin
+    command: node index.js
