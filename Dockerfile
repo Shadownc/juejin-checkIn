@@ -33,10 +33,10 @@ COPY . .
 # 设置环境变量
 ENV NODE_ENV=production \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser \
-    IS_DOCKER=true  # 这个环境变量用于在代码中识别运行环境
+    IS_DOCKER=true
 
 # 使用 dumb-init 作为 init 系统，防止进程僵尸
 ENTRYPOINT ["dumb-init", "--"]
 
-# 启动应用
-CMD ["node", "index.js"]  # 根据你的入口文件名称调整
+# 启动应用，根据你的入口文件名称调整
+CMD ["node", "index.js"]
