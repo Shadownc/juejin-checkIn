@@ -97,16 +97,10 @@ const main = async () => {
         const browser = await puppeteer.launch({
             args: [
                 "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-gpu",
-                "--no-zygote",
-                "--single-process"
             ],
             executablePath: fs.existsSync("/usr/bin/chromium")
                 ? "/usr/bin/chromium"
                 : undefined,
-            timeout: 70000,
         });
 
         const page = await browser.newPage();
