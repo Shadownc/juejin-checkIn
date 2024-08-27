@@ -67,7 +67,8 @@ const browseRandomArticles = async (page) => {
         waitUntil: "networkidle2", // 确保页面完全加载
     });
 
-    await page.waitForTimeout(3000); // 等待额外的3秒钟，确保文章加载
+    // 使用 setTimeout 代替 waitForTimeout
+    await new Promise(resolve => setTimeout(resolve, 3000)); // 等待额外的3秒钟，确保文章加载
 
     const articles = await page.$$('[data-entry-id]');
     if (articles.length === 0) {
@@ -103,7 +104,7 @@ const browseRandomArticles = async (page) => {
             const title = await newPage.$eval("a.jj-link.title", el => el.textContent.trim());
             console.log(`标题${i+1}:${title}`)
             
-            await delay(getRandomInt(2000, 5000)); // 随机浏览时间2-5秒
+            await new Promise(resolve => setTimeout(resolve, getRandomInt(2000, 5000))); // 随机浏览时间2-5秒
 
             console.log(`已浏览文章 ${i + 1} - 标题: ${title}`);
         } catch (error) {
