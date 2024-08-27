@@ -1,6 +1,5 @@
 const puppeteer = require("puppeteer");
 const fs = require("fs");
-const { CronJob } = require("cron");
 const { decodeQR, generateQRtoTerminal } = require("./utils");
 require('dotenv').config();
 const axios = require('axios');
@@ -16,7 +15,6 @@ let checkin = "";
 let point = "-1";
 
 const QYWX_ROBOT = process.env.QYWX_ROBOT;
-const CRON = process.env.CRON;
 
 if (!fs.existsSync(DIR_PATH)) {
     fs.mkdirSync(DIR_PATH);
@@ -126,16 +124,31 @@ const main = async () => {
 
             const loginButton = await page.$(".login-button");
             await loginButton?.click();
+
+            // 等待二维码图片的容器出现
             await page.waitForSelector(".qrcode-img", { timeout: 5000 }).catch(async () => {
                 console.log("二维码图片未找到，正在刷新页面...");
                 await page.reload({ waitUntil: "networkidle0" });
                 await login(retryCount + 1); // 递归调用login，增加重试次数
             });
 
+            // 增加延迟，确保图片完全加载
+            await new Promise(resolve => setTimeout(resolve, 1000)); // 延迟1秒
+
             const qrCodeImg = await page.$(".qrcode-img");
             if (!qrCodeImg) {
                 throw new Error("未找到二维码图片");
             }
+
+            // 确保二维码图片元素的尺寸已经大于零（即加载完成）
+            const boundingBox = await qrCodeImg.boundingBox();
+            if (!boundingBox || boundingBox.width === 0 || boundingBox.height === 0) {
+                console.log("二维码图片尚未加载完成，正在重试...");
+                await page.reload({ waitUntil: "networkidle0" });
+                await login(retryCount + 1); // 递归调用login，增加重试次数
+                return;
+            }
+
             await qrCodeImg.screenshot({
                 path: QR_CODE_PATH,
             });
@@ -155,13 +168,18 @@ const main = async () => {
             await page.waitForNavigation({ waitUntil: "networkidle0" });
         };
 
-        if (!fs.existsSync(COOKIE_PATH)) {
+        // 检查是否有已保存的 cookies 文件
+        if (fs.existsSync(COOKIE_PATH)) {
+            cookies = JSON.parse(fs.readFileSync(COOKIE_PATH, "utf-8"));
+            await page.setCookie(...cookies);
+        } else {
+            // 如果没有 cookies 文件，执行登录流程
             await login();
+
+            // 上传 cookies 文件到 GitHub Artifact
+            const { execSync } = require('child_process');
+            execSync('echo "::set-output name=COOKIE_PATH::./config/cookies.json"');
         }
-
-        cookies = JSON.parse(fs.readFileSync(COOKIE_PATH, "utf-8"));
-
-        await page.setCookie(...cookies);
 
         await page.goto("https://juejin.cn/user/center/signin?from=main_page", {
             waitUntil: "networkidle0",
@@ -228,21 +246,4 @@ const main = async () => {
     console.log("本轮签到结束");
 };
 
-// 0：表示秒，设定为 0，即每分钟的第 0 秒执行。
-// 0：表示分钟，设定为 0，即每小时的第 0 分钟执行。
-// 7：表示小时，设定为 7，即每天的上午 7:00 执行。
-// *：表示日期（1-31），这里设定为 *，表示每一天。
-// *：表示月份（1-12），这里设定为 *，表示每个月。
-// *：表示星期几（0-7，其中 0 和 7 都表示星期天），设定为 *，表示每一天。
-
-const job = new CronJob(
-    CRON || "0 0 7 * * *",
-    main,
-    null,
-    true,
-    "Asia/Shanghai"
-);
-
-job.start();
-console.log("定时任务已启动");
 main();
