@@ -3,6 +3,7 @@ const fs = require("fs");
 const { decodeQR, generateQRtoTerminal } = require("./utils");
 require('dotenv').config();
 const axios = require('axios');
+const crypto = require('crypto');
 
 const DIR_PATH = "./config";
 const COOKIE_PATH = DIR_PATH + "/cookies.json";
@@ -50,6 +51,42 @@ const pushMsg = async (msg) => {
             }
         } catch (error) {
             console.error("请求失败: ", error.message);
+        }
+    }
+};
+
+const pushQRCode = async (base64Data) => {
+    if (QYWX_ROBOT) {
+        try {
+            // 移除可能的 base64 前缀
+            const base64Image = base64Data.replace(/^data:image\/\w+;base64,/, "");
+            
+            // 计算 MD5
+            const md5 = crypto.createHash('md5').update(Buffer.from(base64Image, 'base64')).digest('hex');
+            
+            const response = await axios.post(
+                QYWX_ROBOT,
+                {
+                    msgtype: "image",
+                    image: {
+                        base64: base64Image,
+                        md5: md5
+                    }
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            if (response.data.errcode === 0) {
+                console.log("二维码推送成功");
+            } else {
+                console.log("二维码推送失败: ", response.data);
+            }
+        } catch (error) {
+            console.error("二维码推送请求失败: ", error.message);
         }
     }
 };
@@ -149,13 +186,15 @@ const main = async () => {
                 return;
             }
 
-            await qrCodeImg.screenshot({
-                path: QR_CODE_PATH,
+            const base64Data = await qrCodeImg.screenshot({
+                encoding: "base64",
+                type: "png"  // 明确指定图片类型
             });
+            
+            await pushQRCode(base64Data);
+            console.log("二维码已推送到企业微信，请查看并扫描");
 
-            console.log(`请扫描 ${QR_CODE_PATH} 中的二维码进行登录`);
-
-            const url = await decodeQR(QR_CODE_PATH);
+            const url = await decodeQR(Buffer.from(base64Data, 'base64'));
             console.log(generateQRtoTerminal(url));
 
             page.on("framenavigated", async (frame) => {
