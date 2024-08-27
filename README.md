@@ -15,13 +15,13 @@
 pnpm install  # 安装依赖
 node index.js  # 运行
 ```
-**Docker运行报错 启用了 想了解代码的在main-bak分支**
-## docker运行
+**Docker运行报错 弃用了 想了解代码的在main-bak分支**
+## docker运行（已弃用 采用github action执行）
 ```bash
 docker run -d --name juejin-checkin -e QYWX_ROBOT='你的企业微信群机器人webhook地址' -e CRON='0 0 7 * * *' lmyself/juejin-checkin:latest
 ```
 
-## docker-compose运行
+## docker-compose运行（已弃用 采用github action执行）
 ```bash
 docker-compose up -d
 ```
