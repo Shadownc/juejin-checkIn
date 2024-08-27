@@ -114,7 +114,6 @@ const main = async () => {
     console.log("开始签到");
     try {
         const browser = await puppeteer.launch({
-            headless: false,
             args: [
                 "--no-sandbox",
             ],
