@@ -64,16 +64,29 @@ const delay = (time) => {
 
 const browseRandomArticles = async (page) => {
     await page.goto("https://juejin.cn/", {
-        waitUntil: "domcontentloaded",
+        waitUntil: "networkidle2", // 确保页面完全加载
     });
 
+    await page.waitForTimeout(3000); // 等待额外的3秒钟，确保文章加载
+
     const articles = await page.$$('[data-entry-id]');
+    if (articles.length === 0) {
+        console.error("没有找到任何文章，可能页面加载失败或选择器不正确。");
+        return;
+    }
+
     const articlesToBrowse = getRandomInt(1, Math.min(7, articles.length));
 
     console.log(`准备浏览 ${articlesToBrowse} 篇文章...`);
 
     for (let i = 0; i < articlesToBrowse; i++) {
         const article = articles[i];
+
+        if (!article) {
+            console.error(`文章 ${i + 1} 未找到，跳过`);
+            continue;
+        }
+
         const newPagePromise = new Promise((resolve) => page.once('popup', resolve));
         await article.click();
         const newPage = await newPagePromise;
