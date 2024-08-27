@@ -70,6 +70,7 @@ const browseRandomArticles = async (page, browser) => {
     await new Promise(resolve => setTimeout(resolve, 3000)); // 等待额外的3秒钟，确保文章加载
 
     const articles = await page.$$('[data-entry-id]');
+    console.log(articles)
     if (articles.length === 0) {
         console.error("没有找到任何文章，可能页面加载失败或选择器不正确。");
         return;
