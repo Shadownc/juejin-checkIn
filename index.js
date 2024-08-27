@@ -79,7 +79,7 @@ const browseRandomArticles = async (page) => {
         const newPage = await newPagePromise;
 
         // 等待新页面加载并获取文章标题
-        await newPage.waitForSelector('.jj-link.title');
+        await newPage.waitForSelector('.jj-link.title', { timeout: 60000 });
         const title = await newPage.$eval('.jj-link.title', el => el.textContent.trim());
 
         await delay(getRandomInt(2000, 5000)); // 随机浏览2-5秒
