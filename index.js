@@ -64,7 +64,7 @@ const delay = (time) => {
 
 const browseRandomArticles = async (page) => {
     await page.goto("https://juejin.cn/", {
-        waitUntil: "networkidle0",
+        waitUntil: "domcontentloaded",
     });
 
     const articles = await page.$$('[data-entry-id]');
@@ -84,11 +84,13 @@ const browseRandomArticles = async (page) => {
         }
 
         try {
-            await newPage.waitForXPath("//a[contains(@class, 'jj-link') and contains(@class, 'title')]", { timeout: 60000 });
-            const title = await newPage.$eval("//a[contains(@class, 'jj-link') and contains(@class, 'title')]", el => el.textContent.trim());
+            console.log(`新页面地址: ${newPage.url()}`);
+            await newPage.waitForSelector('body', { timeout: 60000 }); // 确保页面加载
+            await newPage.waitForSelector("a.jj-link.title", { timeout: 90000 });
+            const title = await newPage.$eval("a.jj-link.title", el => el.textContent.trim());
             console.log(`标题${i+1}:${title}`)
             
-            await delay(getRandomInt(2000, 5000)); // Random browse time 2-5 seconds
+            await delay(getRandomInt(2000, 5000)); // 随机浏览时间2-5秒
 
             console.log(`已浏览文章 ${i + 1} - 标题: ${title}`);
         } catch (error) {
