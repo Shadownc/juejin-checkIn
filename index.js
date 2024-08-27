@@ -70,7 +70,6 @@ const browseRandomArticles = async (page, browser) => {
     await new Promise(resolve => setTimeout(resolve, 3000)); // 等待额外的3秒钟，确保文章加载
 
     const articles = await page.$$('[data-entry-id]');
-    console.log(articles)
     if (articles.length === 0) {
         console.error("没有找到任何文章，可能页面加载失败或选择器不正确。");
         return;
@@ -82,31 +81,42 @@ const browseRandomArticles = async (page, browser) => {
 
     for (let i = 0; i < articlesToBrowse; i++) {
         const article = articles[i];
-        const articleUrl = await article.evaluate(node => node.href);
-        console.log(`文章 ${i+1} URL: ${articleUrl}`);
-
+        const articleUrl = await article.$eval('a.jj-link.title', node => node.href).catch(() => null);
+        const title = await article.$eval("a.jj-link.title", el => el.textContent.trim()).catch(() => "标题获取失败");
+        console.log(`标题${i + 1}: ${title}`);
         if (!articleUrl) {
             console.error(`文章 ${i + 1} 没有找到URL，跳过`);
             continue;
         }
 
-        try {
-            const newPage = await browser.newPage();
-            await newPage.goto(articleUrl, { waitUntil: 'domcontentloaded' });
+        console.log(`文章 ${i + 1} URL: ${articleUrl}`);
 
-            console.log(`新页面地址: ${newPage.url()}`);
+        let newPage = null;
+        try {
+            // 添加更多日志用于调试
+            // console.log("尝试创建新的页面实例...");
+            newPage = await browser.newPage();
+            // console.log("新页面实例创建成功");
+
+            await newPage.goto(articleUrl, { waitUntil: 'domcontentloaded' });
+            // console.log(`新页面地址: ${newPage.url()}`);
 
             await newPage.waitForSelector('body', { timeout: 60000 }); // 确保页面加载
-            const title = await newPage.$eval("a.jj-link.title", el => el.textContent.trim());
-            console.log(`标题${i+1}:${title}`)
-            
+
             await new Promise(resolve => setTimeout(resolve, getRandomInt(2000, 5000))); // 随机浏览时间2-5秒
 
             console.log(`已浏览文章 ${i + 1} - 标题: ${title}`);
         } catch (error) {
             console.error(`浏览文章 ${i + 1} 时发生错误: ${error.message}`);
         } finally {
-            await newPage.close();
+            if (newPage) {
+                try {
+                    await newPage.close();
+                    console.log(`新页面已关闭`);
+                } catch (closeError) {
+                    console.error(`关闭新页面时发生错误: ${closeError.message}`);
+                }
+            }
         }
     }
 };
@@ -240,7 +250,7 @@ const main = async () => {
         }
 
         // 浏览随机数量的文章
-        await browseRandomArticles(page);
+        await browseRandomArticles(page, browser);
 
         await page.reload({
             waitUntil: "networkidle0",
