@@ -1,0 +1,44 @@
+name: 定时签到任务
+
+on:
+  schedule:
+    # 每天上午 7:00 运行一次 (UTC 时间)
+    - cron: '0 0 7 * * *'
+
+jobs:
+  checkin:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 设置 Node.js 环境
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18' # 使用 Node.js 18 版本
+
+    - name: 安装 pnpm
+      run: npm install -g pnpm
+
+    - name: 安装依赖
+      run: pnpm install
+
+    - name: 下载 cookies Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: cookies
+        path: ./config
+      continue-on-error: true # 如果第一次执行，没有 artifact，这一步可能会失败，忽略这个错误
+
+    - name: 执行签到脚本
+      run: node index.js
+      env:
+        QYWX_ROBOT: ${{ secrets.QYWX_ROBOT }}
+
+    - name: 上传 cookies Artifact
+      if: always() # 无论任务成功与否，都会执行
+      uses: actions/upload-artifact@v3
+      with:
+        name: cookies
+        path: ./config/cookies.json
