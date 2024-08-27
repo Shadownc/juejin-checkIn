@@ -77,6 +77,7 @@ const browseRandomArticles = async (page) => {
         const newPagePromise = new Promise((x) => page.once('popup', x));
         await article.click();
         const newPage = await newPagePromise;
+        await newPage.waitForTimeout(5000); // 等待5秒
 
         // 等待新页面加载并获取文章标题
         await newPage.waitForSelector('.jj-link.title', { timeout: 60000 });
