@@ -15,6 +15,8 @@ let checkin = "";
 let point = "-1";
 
 const QYWX_ROBOT = process.env.QYWX_ROBOT;
+const SELECTOR_TIMEOUT = process.env.SELECTOR_TIMEOUT || 120000; // 2分钟
+const MAX_RETRIES = 3;
 
 if (!fs.existsSync(DIR_PATH)) {
     fs.mkdirSync(DIR_PATH);
@@ -73,20 +75,42 @@ const browseRandomArticles = async (page) => {
     console.log(`准备浏览 ${articlesToBrowse} 篇文章...`);
 
     for (let i = 0; i < articlesToBrowse; i++) {
-        const article = articles[i];
-        const newPagePromise = new Promise((x) => page.once('popup', x));
-        await article.click();
-        const newPage = await newPagePromise;
-        await delay(5000); // 等待5秒
+        try {
+            const article = articles[i];
+            const newPagePromise = new Promise((x) => page.once('popup', x));
+            await article.click();
+            const newPage = await newPagePromise;
+            await newPage.waitForNavigation({ waitUntil: 'networkidle0' });
 
-        // 等待新页面加载并获取文章标题
-        await newPage.waitForSelector('.jj-link.title', { timeout: 60000 });
-        const title = await newPage.$eval('.jj-link.title', el => el.textContent.trim());
+            console.log(`等待文章 ${i + 1} 加载完成，URL: ${newPage.url()}`);
 
-        await delay(getRandomInt(2000, 5000)); // 随机浏览2-5秒
+            let retries = 0;
+            while (retries < MAX_RETRIES) {
+                try {
+                    await newPage.waitForSelector('.jj-link.title, .article-title, h1.title', { timeout: SELECTOR_TIMEOUT });
+                    break;
+                } catch (error) {
+                    console.log(`尝试 ${retries + 1} 失败: ${error.message}`);
+                    retries++;
+                    if (retries >= MAX_RETRIES) {
+                        console.log("达到最大重试次数。跳过此文章。");
+                        break;
+                    }
+                    await delay(5000); // 重试前等待5秒
+                }
+            }
 
-        console.log(`已浏览文章 ${i + 1} - 标题: ${title}`);
-        await newPage.close();
+            if (retries < MAX_RETRIES) {
+                const title = await newPage.$eval('.jj-link.title, .article-title, h1.title', el => el.textContent.trim());
+                console.log(`正在浏览文章 ${i + 1} - 标题: ${title}`);
+                await delay(getRandomInt(2000, 5000)); // 随机浏览2-5秒
+            }
+
+            await newPage.close();
+        } catch (error) {
+            console.log(`处理文章 ${i + 1} 时出错: ${error.message}`);
+            continue; // 跳到下一篇文章
+        }
     }
 };
 
@@ -96,6 +120,12 @@ const main = async () => {
         const browser = await puppeteer.launch({
             args: [
                 "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-accelerated-2d-canvas",
+                "--no-first-run",
+                "--no-zygote",
+                "--disable-gpu"
             ],
             executablePath: fs.existsSync("/usr/bin/chromium")
                 ? "/usr/bin/chromium"
@@ -103,7 +133,7 @@ const main = async () => {
         });
 
         const page = await browser.newPage();
-        page.setDefaultTimeout(1000 * 60 * 5);
+        page.setDefaultTimeout(SELECTOR_TIMEOUT);
 
         await page.setUserAgent(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
@@ -168,8 +198,6 @@ const main = async () => {
 
             await page.waitForNavigation({ waitUntil: "networkidle0" });
         };
-
-
 
         if (!fs.existsSync(COOKIE_PATH)) {
             await login();
