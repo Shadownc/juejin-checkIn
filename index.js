@@ -62,59 +62,30 @@ const delay = (time) => {
     return new Promise(resolve => setTimeout(resolve, time));
 };
 
-const retryOperation = async (operation, maxRetries = 3) => {
-    for (let i = 0; i < maxRetries; i++) {
-        try {
-            await operation();
-            break;
-        } catch (error) {
-            console.error(`第${i+1}次重试失败：`, error.message);
-            await delay(1000); // 等待1秒后重试
-        }
-    }
-};
-
 const browseRandomArticles = async (page) => {
-    try {
-        await page.goto("https://juejin.cn/", {
-            waitUntil: "networkidle0",
-        });
+    await page.goto("https://juejin.cn/", {
+        waitUntil: "networkidle0",
+    });
 
-        const articles = await page.$$('[data-entry-id]');
-        const articlesToBrowse = getRandomInt(1, Math.min(7, articles.length)); // 1-7篇文章
+    const articles = await page.$$('[data-entry-id]');
+    const articlesToBrowse = getRandomInt(1, Math.min(7, articles.length)); // 1-7篇文章
 
-        console.log(`准备浏览 ${articlesToBrowse} 篇文章...`);
+    console.log(`准备浏览 ${articlesToBrowse} 篇文章...`);
 
-        for (let i = 0; i < articlesToBrowse; i++) {
-            const article = articles[i];
-            const newPagePromise = new Promise((x) => page.once('popup', x));
-            await article.click();
-            const newPage = await newPagePromise;
+    for (let i = 0; i < articlesToBrowse; i++) {
+        const article = articles[i];
+        const newPagePromise = new Promise((x) => page.once('popup', x));
+        await article.click();
+        const newPage = await newPagePromise;
 
-            if (!newPage || newPage.isClosed()) {
-                console.error(`新页面在浏览第 ${i + 1} 篇文章时意外关闭`);
-                continue;
-            }
+        // 等待新页面加载并获取文章标题
+        await newPage.waitForSelector('.jj-link.title');
+        const title = await newPage.$eval('.jj-link.title', el => el.textContent.trim());
 
-            try {
-                // 增加等待时间，确保页面加载完成
-                await newPage.waitForSelector('.jj-link.title', { timeout: 90000 });
+        await delay(getRandomInt(2000, 5000)); // 随机浏览2-5秒
 
-                const title = await newPage.$eval('.jj-link.title', el => el.textContent.trim());
-
-                await delay(getRandomInt(2000, 5000)); // 随机浏览2-5秒
-
-                console.log(`已浏览文章 ${i + 1} - 标题: ${title}`);
-            } catch (error) {
-                console.error(`浏览第 ${i + 1} 篇文章时出错:`, error.message);
-            } finally {
-                if (!newPage.isClosed()) {
-                    await newPage.close();
-                }
-            }
-        }
-    } catch (error) {
-        console.error('浏览文章时出现错误:', error.message);
+        console.log(`已浏览文章 ${i + 1} - 标题: ${title}`);
+        await newPage.close();
     }
 };
 
@@ -127,7 +98,7 @@ const main = async () => {
             ],
             executablePath: fs.existsSync("/usr/bin/chromium")
                 ? "/usr/bin/chromium"
-                : undefined
+                : undefined,
         });
 
         const page = await browser.newPage();
@@ -197,6 +168,8 @@ const main = async () => {
             await page.waitForNavigation({ waitUntil: "networkidle0" });
         };
 
+
+
         if (!fs.existsSync(COOKIE_PATH)) {
             await login();
         }
@@ -245,7 +218,7 @@ const main = async () => {
         }
 
         // 浏览随机数量的文章
-        await retryOperation(browseRandomArticles(page));
+        await browseRandomArticles(page);
 
         await page.reload({
             waitUntil: "networkidle0",
