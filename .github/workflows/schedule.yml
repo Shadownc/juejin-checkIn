@@ -20,27 +20,10 @@ jobs:
       with:
         node-version: '18' # 使用 Node.js 18 版本
 
-    - name: 安装 pnpm
-      run: npm install -g pnpm
-
-    - name: 安装依赖
-      run: pnpm install
-
-    - name: 下载 cookies Artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: cookies
-        path: ./config
-      continue-on-error: true # 如果第一次执行，没有 artifact，这一步可能会失败，忽略这个错误
-
-    - name: 执行签到脚本
-      run: node index.js
+    - name: 安装依赖并执行签到脚本
+      run: |
+        npm install -g pnpm
+        pnpm install
+        node index.js
       env:
         QYWX_ROBOT: ${{ secrets.QYWX_ROBOT }}
-
-    - name: 上传 cookies Artifact
-      if: always() # 无论任务成功与否，都会执行
-      uses: actions/upload-artifact@v3
-      with:
-        name: cookies
-        path: ./config/cookies.json
