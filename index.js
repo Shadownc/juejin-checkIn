@@ -84,9 +84,10 @@ const browseRandomArticles = async (page) => {
         }
 
         try {
-            await newPage.waitForSelector('.jj-link.title', { timeout: 60000 });
-            const title = await newPage.$eval('.jj-link.title', el => el.textContent.trim());
-
+            await newPage.waitForXPath("//a[contains(@class, 'jj-link') and contains(@class, 'title')]", { timeout: 60000 });
+            const title = await newPage.$eval("//a[contains(@class, 'jj-link') and contains(@class, 'title')]", el => el.textContent.trim());
+            console.log(`标题${i+1}:${title}`)
+            
             await delay(getRandomInt(2000, 5000)); // Random browse time 2-5 seconds
 
             console.log(`已浏览文章 ${i + 1} - 标题: ${title}`);
