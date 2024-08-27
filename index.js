@@ -68,24 +68,33 @@ const browseRandomArticles = async (page) => {
     });
 
     const articles = await page.$$('[data-entry-id]');
-    const articlesToBrowse = getRandomInt(1, Math.min(7, articles.length)); // 1-7篇文章
+    const articlesToBrowse = getRandomInt(1, Math.min(7, articles.length));
 
     console.log(`准备浏览 ${articlesToBrowse} 篇文章...`);
 
     for (let i = 0; i < articlesToBrowse; i++) {
         const article = articles[i];
-        const newPagePromise = new Promise((x) => page.once('popup', x));
+        const newPagePromise = new Promise((resolve) => page.once('popup', resolve));
         await article.click();
         const newPage = await newPagePromise;
 
-        // 等待新页面加载并获取文章标题
-        await newPage.waitForSelector('.jj-link.title');
-        const title = await newPage.$eval('.jj-link.title', el => el.textContent.trim());
+        if (!newPage) {
+            console.error(`未检测到弹出窗口，跳过文章 ${i + 1}`);
+            continue;
+        }
 
-        await delay(getRandomInt(2000, 5000)); // 随机浏览2-5秒
+        try {
+            await newPage.waitForSelector('.jj-link.title', { timeout: 60000 });
+            const title = await newPage.$eval('.jj-link.title', el => el.textContent.trim());
 
-        console.log(`已浏览文章 ${i + 1} - 标题: ${title}`);
-        await newPage.close();
+            await delay(getRandomInt(2000, 5000)); // Random browse time 2-5 seconds
+
+            console.log(`已浏览文章 ${i + 1} - 标题: ${title}`);
+        } catch (error) {
+            console.error(`浏览文章 ${i + 1} 时发生错误: ${error.message}`);
+        } finally {
+            await newPage.close();
+        }
     }
 };
 
