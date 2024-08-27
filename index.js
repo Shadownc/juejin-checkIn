@@ -62,12 +62,11 @@ const delay = (time) => {
     return new Promise(resolve => setTimeout(resolve, time));
 };
 
-const browseRandomArticles = async (page) => {
+const browseRandomArticles = async (page, browser) => {
     await page.goto("https://juejin.cn/", {
         waitUntil: "networkidle2", // 确保页面完全加载
     });
 
-    // 使用 setTimeout 代替 waitForTimeout
     await new Promise(resolve => setTimeout(resolve, 3000)); // 等待额外的3秒钟，确保文章加载
 
     const articles = await page.$$('[data-entry-id]');
@@ -82,25 +81,21 @@ const browseRandomArticles = async (page) => {
 
     for (let i = 0; i < articlesToBrowse; i++) {
         const article = articles[i];
+        const articleUrl = await article.evaluate(node => node.href);
+        console.log(`文章 ${i+1} URL: ${articleUrl}`);
 
-        if (!article) {
-            console.error(`文章 ${i + 1} 未找到，跳过`);
-            continue;
-        }
-
-        const newPagePromise = new Promise((resolve) => page.once('popup', resolve));
-        await article.click();
-        const newPage = await newPagePromise;
-
-        if (!newPage) {
-            console.error(`未检测到弹出窗口，跳过文章 ${i + 1}`);
+        if (!articleUrl) {
+            console.error(`文章 ${i + 1} 没有找到URL，跳过`);
             continue;
         }
 
         try {
+            const newPage = await browser.newPage();
+            await newPage.goto(articleUrl, { waitUntil: 'domcontentloaded' });
+
             console.log(`新页面地址: ${newPage.url()}`);
+
             await newPage.waitForSelector('body', { timeout: 60000 }); // 确保页面加载
-            await newPage.waitForSelector("a.jj-link.title", { timeout: 90000 });
             const title = await newPage.$eval("a.jj-link.title", el => el.textContent.trim());
             console.log(`标题${i+1}:${title}`)
             
@@ -119,6 +114,7 @@ const main = async () => {
     console.log("开始签到");
     try {
         const browser = await puppeteer.launch({
+            headless: false,
             args: [
                 "--no-sandbox",
             ],
