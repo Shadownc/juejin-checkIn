@@ -2,8 +2,8 @@ name: 定时签到任务
 
 on:
   schedule:
-    # 每天 UTC 时间上午 7:00 运行一次
-    - cron: "0 7 * * *"
+    # 每天 UTC 时间晚上 11:00（北京时间早上 7:00）运行一次
+    - cron: "0 23 * * *"
   
   workflow_dispatch:  # 添加手动触发器
 
