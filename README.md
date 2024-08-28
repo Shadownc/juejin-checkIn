@@ -24,7 +24,7 @@ node index.js  # 运行
 
 #### 修复
 - 修复了重复运行脚本扣除矿石抽奖
-**Docker运行报错 弃用了 想了解代码的在main-bak分支**
+**Docker运行报错 弃用了 想了解代码的在main-bak分支**  
   
 ## docker运行（已弃用 采用github action执行）
 ```bash
