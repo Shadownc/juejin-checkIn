@@ -17,7 +17,15 @@
 pnpm install  # 安装依赖
 node index.js  # 运行
 ```
+## 更新日志
+### [base] - 2024-08-28
+#### 添加
+- 新增判断是否已经免费抽奖。
+
+#### 修复
+- 修复了重复运行脚本扣除矿石抽奖
 **Docker运行报错 弃用了 想了解代码的在main-bak分支**
+  
 ## docker运行（已弃用 采用github action执行）
 ```bash
 docker run -d --name juejin-checkin -e QYWX_ROBOT='你的企业微信群机器人webhook地址' -e CRON='0 0 7 * * *' lmyself/juejin-checkin:latest
