@@ -230,6 +230,7 @@ const main = async () => {
                 response.request().method() === "GET"
             ) {
                 const data = await response.json();
+                console.log(`签到状态: ${JSON.stringify(data)}`)
                 checkin = data.data.check_in_done ? "已签到" : "未签到";
                 console.log(checkin);
             }
@@ -239,17 +240,23 @@ const main = async () => {
             waitUntil: "networkidle0",
         });
 
-        await page.waitForSelector("#turntable-item-0");
-        const lotteryButton = await page.$("#turntable-item-0");
-
-        if (lotteryButton) {
-            await lotteryButton.click();
-            console.log("已点击抽奖按钮");
-        } else {
-            console.log("未找到抽奖按钮");
+        await delay(2000)
+        //新增是否已经免费抽奖判断
+        try {
+            await page.waitForSelector("#turntable-item-0 div.text-free", { visible: true, timeout: 5000 });
+            const freeTextDiv = await page.$("#turntable-item-0 div.text-free");
+            if (freeTextDiv) {
+                await freeTextDiv.click();
+                console.log("已点击抽奖按钮");
+            } else {
+                console.log("未找到可点击的免费抽奖按钮");
+            }
+        } catch (e) {
+            console.log("未找到可点击的免费抽奖按钮");
         }
 
         // 浏览随机数量的文章
+        await delay(2000)
         await browseRandomArticles(page, browser);
 
         await page.reload({
