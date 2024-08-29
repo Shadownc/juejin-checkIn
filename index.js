@@ -214,6 +214,7 @@ const main = async () => {
             waitUntil: "networkidle0",
         });
 
+        await delay(2000)
         await page.waitForSelector(".signin");
         const checkinButton = await page.$(".code-calender");
         await checkinButton?.click();
@@ -236,6 +237,7 @@ const main = async () => {
             }
         });
 
+        await delay(2000)
         await page.goto("https://juejin.cn/user/center/lottery?from=sign_in_success", {
             waitUntil: "networkidle0",
         });
