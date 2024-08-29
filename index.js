@@ -121,6 +121,35 @@ const browseRandomArticles = async (page, browser) => {
     }
 };
 
+const retrySignIn = async (page, retries = 3) => {
+    for (let attempt = 0; attempt < retries; attempt++) {
+        try {
+            await page.waitForSelector(".signin");
+            const checkinButton = await page.$(".code-calender");
+            if (checkinButton) {
+                await checkinButton.click();
+                console.log("签到按钮已点击。");
+            } else {
+                console.log("未点击签到按钮或已经完成签到");
+            }
+
+            await page.waitForSelector(".header-text > .figure-text");
+            const figureText = await page.$(".header-text > .figure-text");
+            point = (await page.evaluate((el) => el && el.textContent, figureText)) || point;
+            console.log("签到成功");
+            return true;
+        } catch (e) {
+            console.log(`签到失败，重试次数: ${attempt + 1}`);
+            if (attempt < retries - 1) {
+                await delay(2000); // 等待2秒后重试
+            } else {
+                console.log("达到最大重试次数，签到失败");
+                return false;
+            }
+        }
+    }
+};
+
 const main = async () => {
     console.log("开始签到");
     try {
@@ -215,22 +244,9 @@ const main = async () => {
         });
 
         await delay(2000)
-        try {
-            await page.waitForSelector(".signin");
-            const checkinButton = await page.$(".code-calender");
-            if (checkinButton) {
-                await checkinButton.click();
-                console.log("签到按钮已点击。");
-            } else {
-                console.log("未点击签到按钮或已经完成签到");
-            }
-
-            await page.waitForSelector(".header-text > .figure-text");
-            const figureText = await page.$(".header-text > .figure-text");
-            point =
-                (await page.evaluate((el) => el && el.textContent, figureText)) || point;
-        } catch (e) {
-            console.log("未点击签到按钮或已经完成签到")
+        const signInSuccessful = await retrySignIn(page);
+        if (!signInSuccessful) {
+            throw new Error("签到操作最终失败");
         }
 
         page.on("response", async (response) => {
