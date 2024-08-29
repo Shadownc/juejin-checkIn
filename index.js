@@ -218,7 +218,12 @@ const main = async () => {
         try {
             await page.waitForSelector(".signin");
             const checkinButton = await page.$(".code-calender");
-            await checkinButton?.click();
+            if (checkinButton) {
+                await checkinButton.click();
+                console.log("签到按钮已点击。");
+            } else {
+                console.log("未找到签到按钮。");
+            }
 
             await page.waitForSelector(".header-text > .figure-text");
             const figureText = await page.$(".header-text > .figure-text");
