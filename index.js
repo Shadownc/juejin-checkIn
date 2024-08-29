@@ -215,14 +215,18 @@ const main = async () => {
         });
 
         await delay(2000)
-        await page.waitForSelector(".signin");
-        const checkinButton = await page.$(".code-calender");
-        await checkinButton?.click();
+        try {
+            await page.waitForSelector(".signin");
+            const checkinButton = await page.$(".code-calender");
+            await checkinButton?.click();
 
-        await page.waitForSelector(".header-text > .figure-text");
-        const figureText = await page.$(".header-text > .figure-text");
-        point =
-            (await page.evaluate((el) => el && el.textContent, figureText)) || point;
+            await page.waitForSelector(".header-text > .figure-text");
+            const figureText = await page.$(".header-text > .figure-text");
+            point =
+                (await page.evaluate((el) => el && el.textContent, figureText)) || point;
+        } catch (e) {
+            console.log("未点击签到按钮或已经完成签到")
+        }
 
         page.on("response", async (response) => {
             const url = response.url();
@@ -232,6 +236,7 @@ const main = async () => {
             ) {
                 const data = await response.json();
                 console.log(`签到状态: ${JSON.stringify(data)}`)
+                if (!data.data.check_in_done) return
                 checkin = data.data.check_in_done ? "已签到" : "未签到";
                 console.log(checkin);
             }
