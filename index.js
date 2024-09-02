@@ -220,7 +220,7 @@ const main = async () => {
 
             await delay(7000);
             try {
-                await page.waitForSelector(".signin-btn, .signedin-btn");
+                await page.waitForSelector(".signin-btn, .signedin-btn", { timeout: 5000 });
                 const checkinButton = await page.$(".signin-btn");
                 if (checkinButton) {
                     await checkinButton.click();
