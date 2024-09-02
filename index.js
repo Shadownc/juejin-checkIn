@@ -220,13 +220,19 @@ const main = async () => {
 
             await delay(7000);
             try {
-                await page.waitForSelector(".code-calender .btn");
-                const checkinButton = await page.$(".code-calender .signin");
-                if (checkinButton) {
-                    await checkinButton.click();
-                    console.log("签到按钮已点击。");
+                const signedinButton = await page.$(".code-calender .signedin");
+                if (signedinButton) {
+                    console.log("已签到，无需重复签到");
                 } else {
-                    console.log("未点击签到按钮或已经完成签到");
+                    await page.waitForSelector(".code-calender .signin", { timeout: 5000 });
+                    const checkinButton = await page.$(".code-calender .signin");
+
+                    if (checkinButton) {
+                        await checkinButton.click();
+                        console.log("签到按钮已点击。");
+                    } else {
+                        console.log("签到按钮未找到，可能页面未正确加载");
+                    }
                 }
 
                 await page.waitForSelector(".header-text > .figure-text");
