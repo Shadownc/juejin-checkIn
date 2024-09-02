@@ -280,7 +280,7 @@ const main = async () => {
                 console.log("未找到可点击的免费抽奖按钮");
             }
 
-            if (!freeDrawFound) {
+            if (!freeDrawFound&&!alreadySignedIn) {
                 console.log(`未找到免费抽奖按钮，第${attempt}次重试签到`);
             }
         }
