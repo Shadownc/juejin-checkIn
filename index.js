@@ -204,100 +204,100 @@ const main = async () => {
             await login();
         }
 
-        cookies = JSON.parse(fs.readFileSync(COOKIE_PATH, "utf-8"));
-        await page.setCookie(...cookies);
+        // cookies = JSON.parse(fs.readFileSync(COOKIE_PATH, "utf-8"));
+        // await page.setCookie(...cookies);
 
-        let maxRetries = 3;
-        let attempt = 0;
-        let freeDrawFound = false;
+        // let maxRetries = 3;
+        // let attempt = 0;
+        // let freeDrawFound = false;
 
-        while (attempt < maxRetries && !freeDrawFound) {
-            attempt += 1;
+        // while (attempt < maxRetries && !freeDrawFound) {
+        //     attempt += 1;
 
-            await page.goto("https://juejin.cn/user/center/signin?from=main_page", {
-                waitUntil: "networkidle0",
-            });
+        //     await page.goto("https://juejin.cn/user/center/signin?from=main_page", {
+        //         waitUntil: "networkidle0",
+        //     });
 
-            await delay(2000);
-            try {
-                await page.waitForSelector(".signin");
-                const checkinButton = await page.$(".code-calender");
-                if (checkinButton) {
-                    await checkinButton.click();
-                    console.log("签到按钮已点击。");
-                } else {
-                    console.log("未点击签到按钮或已经完成签到");
-                }
+        //     await delay(7000);
+        //     try {
+        //         await page.waitForSelector(".signin-btn, .signedin-btn");
+        //         const checkinButton = await page.$(".signin-btn");
+        //         if (checkinButton) {
+        //             await checkinButton.click();
+        //             console.log("签到按钮已点击。");
+        //         } else {
+        //             console.log("未点击签到按钮或已经完成签到");
+        //         }
 
-                await page.waitForSelector(".header-text > .figure-text");
-                const figureText = await page.$(".header-text > .figure-text");
-                point =
-                    (await page.evaluate((el) => el && el.textContent, figureText)) || point;
-            } catch (e) {
-                console.log("未点击签到按钮或已经完成签到")
-            }
+        //         await page.waitForSelector(".header-text > .figure-text");
+        //         const figureText = await page.$(".header-text > .figure-text");
+        //         point =
+        //             (await page.evaluate((el) => el && el.textContent, figureText)) || point;
+        //     } catch (e) {
+        //         console.log("发生错误，无法完成签到或获取积分信息")
+        //     }
 
-            page.on("response", async (response) => {
-                const url = response.url();
-                if (
-                    url.includes("get_today_status") &&
-                    response.request().method() === "GET"
-                ) {
-                    const data = await response.json();
-                    console.log(`签到状态: ${JSON.stringify(data)}`)
-                    if (!data.data.check_in_done) return
-                    checkin = data.data.check_in_done ? "已签到" : "未签到";
-                    console.log(checkin);
-                }
-            });
+        //     page.on("response", async (response) => {
+        //         const url = response.url();
+        //         if (
+        //             url.includes("get_today_status") &&
+        //             response.request().method() === "GET"
+        //         ) {
+        //             const data = await response.json();
+        //             console.log(`签到状态: ${JSON.stringify(data)}`)
+        //             if (!data.data.check_in_done) return
+        //             checkin = data.data.check_in_done ? "已签到" : "未签到";
+        //             console.log(checkin);
+        //         }
+        //     });
 
-            await delay(2000);
-            await page.goto("https://juejin.cn/user/center/lottery?from=sign_in_success", {
-                waitUntil: "networkidle0",
-            });
+        //     await delay(2000);
+        //     await page.goto("https://juejin.cn/user/center/lottery?from=sign_in_success", {
+        //         waitUntil: "networkidle0",
+        //     });
 
-            await delay(2000);
-            //新增是否已经免费抽奖判断
-            try {
-                await page.waitForSelector("#turntable-item-0 div.text-free", { visible: true, timeout: 5000 });
-                const freeTextDiv = await page.$("#turntable-item-0 div.text-free");
-                if (freeTextDiv) {
-                    await freeTextDiv.click();
-                    console.log("已点击抽奖按钮");
-                    freeDrawFound = true;
-                } else {
-                    console.log("未找到可点击的免费抽奖按钮");
-                }
-            } catch (e) {
-                console.log("未找到可点击的免费抽奖按钮");
-            }
+        //     await delay(2000);
+        //     //新增是否已经免费抽奖判断
+        //     try {
+        //         await page.waitForSelector("#turntable-item-0 div.text-free", { visible: true, timeout: 5000 });
+        //         const freeTextDiv = await page.$("#turntable-item-0 div.text-free");
+        //         if (freeTextDiv) {
+        //             await freeTextDiv.click();
+        //             console.log("已点击抽奖按钮");
+        //             freeDrawFound = true;
+        //         } else {
+        //             console.log("未找到可点击的免费抽奖按钮");
+        //         }
+        //     } catch (e) {
+        //         console.log("未找到可点击的免费抽奖按钮");
+        //     }
 
-            if (!freeDrawFound) {
-                console.log(`未找到免费抽奖按钮，第${attempt}次重试签到`);
-            }
-        }
+        //     if (!freeDrawFound) {
+        //         console.log(`未找到免费抽奖按钮，第${attempt}次重试签到`);
+        //     }
+        // }
 
-        if (attempt >= maxRetries && !freeDrawFound) {
-            console.log("已达到最大重试次数，签到失败");
-        } else {
-            // 浏览随机数量的文章
-            await delay(2000);
-            await browseRandomArticles(page, browser);
-        }
+        // if (attempt >= maxRetries && !freeDrawFound) {
+        //     console.log("已达到最大重试次数，签到失败");
+        // } else {
+        //     // 浏览随机数量的文章
+        //     await delay(2000);
+        //     await browseRandomArticles(page, browser);
+        // }
 
-        await page.reload({
-            waitUntil: "networkidle0",
-        });
+        // await page.reload({
+        //     waitUntil: "networkidle0",
+        // });
 
-        if (!point) {
-            point = "-1";
-        }
+        // if (!point) {
+        //     point = "-1";
+        // }
 
-        msg = msg.replace("{checkin}", checkin).replace("{point}", point);
-        console.log(msg);
-        await pushMsg(msg);
+        // msg = msg.replace("{checkin}", checkin).replace("{point}", point);
+        // console.log(msg);
+        // await pushMsg(msg);
 
-        await browser.close();
+        // await browser.close();
     } catch (e) {
         const error = e;
         console.error(error);
