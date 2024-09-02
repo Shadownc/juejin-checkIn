@@ -218,7 +218,7 @@ const main = async () => {
                 waitUntil: "networkidle0",
             });
 
-            await delay(2000);
+            await delay(7000);
             try {
                 await page.waitForSelector(".signin");
                 const checkinButton = await page.$(".code-calender");
