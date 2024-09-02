@@ -210,8 +210,9 @@ const main = async () => {
         let maxRetries = 3;
         let attempt = 0;
         let freeDrawFound = false;
+        let alreadySignedIn = false; //判断是否已签到
 
-        while (attempt < maxRetries && !freeDrawFound) {
+        while (attempt < maxRetries && !freeDrawFound && !alreadySignedIn) {
             attempt += 1;
 
             await page.goto("https://juejin.cn/user/center/signin?from=main_page", {
@@ -223,6 +224,7 @@ const main = async () => {
                 const signedinButton = await page.$(".code-calender .signedin");
                 if (signedinButton) {
                     console.log("已签到，无需重复签到");
+                    alreadySignedIn = true;
                 } else {
                     await page.waitForSelector(".code-calender .signin", { timeout: 5000 });
                     const checkinButton = await page.$(".code-calender .signin");
