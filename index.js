@@ -220,8 +220,8 @@ const main = async () => {
 
             await delay(7000);
             try {
-                await page.waitForSelector(".signin");
-                const checkinButton = await page.$(".code-calender");
+                await page.waitForSelector(".signin-btn, .signedin-btn");
+                const checkinButton = await page.$(".signin-btn");
                 if (checkinButton) {
                     await checkinButton.click();
                     console.log("签到按钮已点击。");
@@ -234,7 +234,7 @@ const main = async () => {
                 point =
                     (await page.evaluate((el) => el && el.textContent, figureText)) || point;
             } catch (e) {
-                console.log("未点击签到按钮或已经完成签到")
+                console.log("发生错误，无法完成签到或获取积分信息")
             }
 
             page.on("response", async (response) => {
