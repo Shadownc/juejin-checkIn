@@ -226,7 +226,7 @@ const main = async () => {
                     console.log("已签到，无需重复签到");
                     alreadySignedIn = true;
                 } else {
-                    await page.waitForSelector(".code-calender .signin", { timeout: 5000 });
+                    await page.waitForSelector(".code-calender .signin", { visible: true,timeout: 5000 });
                     const checkinButton = await page.$(".code-calender .signin");
 
                     if (checkinButton) {
