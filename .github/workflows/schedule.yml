@@ -21,13 +21,19 @@ jobs:
         node-version: '18' # 使用 Node.js 18 版本
 
     - name: 安装依赖并执行签到脚本（带重试）
-      uses: andresz1/retry@v2  # 使用重试的 Action
-      with:
-        timeout_seconds: 10     # 重试间隔时间（秒）
-        max_attempts: 3         # 最大重试次数
-        command: |
-          npm install -g pnpm
-          pnpm install
-          node index.js
+      run: |
+        retry_count=0
+        max_retries=3
+        until [ $retry_count -ge $max_retries ]
+        do
+          npm install -g pnpm && pnpm install && node index.js && break
+          retry_count=$((retry_count+1))
+          echo "尝试失败，第 $retry_count 次重试..."
+          sleep 10  # 重试间隔
+        done
+        if [ $retry_count -ge $max_retries ]; then
+          echo "任务失败，重试 $max_retries 次仍未成功"
+          exit 1
+        fi
       env:
         QYWX_ROBOT: ${{ secrets.QYWX_ROBOT }}
