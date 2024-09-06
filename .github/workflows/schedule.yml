@@ -20,10 +20,14 @@ jobs:
       with:
         node-version: '18' # 使用 Node.js 18 版本
 
-    - name: 安装依赖并执行签到脚本
-      run: |
-        npm install -g pnpm
-        pnpm install
-        node index.js
+    - name: 安装依赖并执行签到脚本（带重试）
+      uses: andresz1/retry@v2  # 使用重试的 Action
+      with:
+        timeout_seconds: 10     # 重试间隔时间（秒）
+        max_attempts: 3         # 最大重试次数
+        command: |
+          npm install -g pnpm
+          pnpm install
+          node index.js
       env:
         QYWX_ROBOT: ${{ secrets.QYWX_ROBOT }}
