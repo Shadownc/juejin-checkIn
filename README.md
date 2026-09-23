@@ -11,6 +11,17 @@
    `QYWX_ROBOT` Settings action secrets新增QYWX_ROBOT 值就是你机器人的webhook地址
    [配置文档](https://developer.work.weixin.qq.com/document/path/91770)
 
+## 免扫码获取 cookies（复制粘贴）
+如果不想每次扫码登录，可以直接从已登录的浏览器复制 Cookie 生成 `config/cookies.json`：
+1. Chrome 打开 https://juejin.cn 并确认已登录
+2. F12 打开开发者工具 → Network(网络) 面板 → 刷新页面
+3. 点任意一条 juejin.cn 的请求 → Headers → 请求标头里找到 `Cookie:`
+4. 复制 `Cookie:` 冒号后面那一整串，粘贴到项目根目录的 `cookie.txt`（覆盖里面的说明文字即可）
+5. 运行 `npm run cookies`（或 `node buildCookies.js`）生成 `config/cookies.json`，然后提交推送
+
+> ⚠️ 一定要从「请求标头 Cookie」里复制，不要用控制台的 `document.cookie`。登录态 `sessionid_ss`、`sid_guard` 都是 httpOnly 的，`document.cookie` 读不到。
+
+
 ## 本地运行（请用PowerShell或者git bash运行）
 **cmd直接运行会报错**
 ```bash

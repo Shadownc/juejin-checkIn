@@ -1,0 +1,11 @@
+# 把浏览器里的 Cookie 复制到这里，然后运行  npm run cookies
+#
+# 获取方法（能拿到 httpOnly 的登录态）：
+#   1. Chrome 打开 https://juejin.cn 并确认已登录
+#   2. F12 打开开发者工具 → Network(网络) 面板 → 刷新页面
+#   3. 点任意一条 juejin.cn 的请求 → Headers → 请求标头里找到 "Cookie:"
+#   4. 复制 Cookie: 冒号后面那一整串，粘贴到本文件下面（覆盖这段说明也行）
+#
+# 以 # 开头的行会被忽略；粘贴时带不带 "Cookie:" 前缀都可以。
+
+_tea_utm_cache_2608=undefined; sid_guard=4bf4c8147881275cd3462ea68babd352%7C1772420112%7C31536000%7CTue%2C+02-Mar-2027+02%3A55%3A12+GMT; uid_tt=d28854330f8864af8aa5fd2fe5e30482; uid_tt_ss=d28854330f8864af8aa5fd2fe5e30482; sid_tt=4bf4c8147881275cd3462ea68babd352; sessionid=4bf4c8147881275cd3462ea68babd352; sessionid_ss=4bf4c8147881275cd3462ea68babd352; session_tlb_tag=sttt%7C10%7CS_TIFHiBJ1zTRi6mi6vTUv_________Xikii_nkvBDHlFimpzr2_aVt-y23MD0b8JMCsgRp3wco%3D; is_staff_user=false; sid_ucp_v1=1.0.0-KDczODU0YWM4YmJmOTVmZTIyYjZjMTliZWQzOWY3M2ZkZjUyYWNiODEKFwjX5eC-_fXlBBCQ-JPNBhiwFDgCQO8HGgJsZiIgNGJmNGM4MTQ3ODgxMjc1Y2QzNDYyZWE2OGJhYmQzNTI; ssid_ucp_v1=1.0.0-KDczODU0YWM4YmJmOTVmZTIyYjZjMTliZWQzOWY3M2ZkZjUyYWNiODEKFwjX5eC-_fXlBBCQ-JPNBhiwFDgCQO8HGgJsZiIgNGJmNGM4MTQ3ODgxMjc1Y2QzNDYyZWE2OGJhYmQzNTI; __tea_cookie_tokens_2608=%257B%2522web_id%2522%253A%25227618094961737270835%2522%252C%2522user_unique_id%2522%253A%25227618094961737270835%2522%252C%2522timestamp%2522%253A1773725965495%257D; csrf_session_id=319f132945abd34aeafdb788fd8e5125
